@@ -226,12 +226,10 @@ class DQN:
             if action_mask is None:
                 action = np.random.randint(0, self.action_dim, size=state.size()[0])
             else:
-                inv_mask = 1 - action_mask
-
-                available_actions = np.ma.array(
-                    np.arange(0, self.action_dim), mask=inv_mask
-                ).compressed()
-                action = np.random.choice(available_actions, size=state.size()[0])
+                if action_mask.ndim == 1:
+                    action_mask = np.expand_dims(action_mask, 0)
+                available_actions =  [np.where(mask)[0] for mask in action_mask]
+                action = [np.random.choice(actions) for actions in available_actions]
 
         else:
             self.actor.eval()
